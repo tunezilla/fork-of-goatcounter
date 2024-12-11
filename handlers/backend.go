@@ -6,6 +6,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 	"slices"
 
 	"github.com/go-chi/chi/v5"
@@ -120,6 +121,12 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}))
 		rate.Get("/count", zhttp.Wrap(h.count))
 		rate.Post("/count", zhttp.Wrap(h.count)) // to support navigator.sendBeacon (JS)
+
+		otherCountEndpoint := os.Getenv("FORK_OF_GOATCOUNTER_OTHER_COUNT_ENDPOINT")
+		if otherCountEndpoint != "" {
+			rate.Get(otherCountEndpoint, zhttp.Wrap(h.count))
+			rate.Post(otherCountEndpoint, zhttp.Wrap(h.count)) // to support navigator.sendBeacon (JS)
+		}
 	}
 
 	{
